@@ -5,3 +5,8 @@ services:
     build: .
     ports:
       - "1753:80"
+    volumes:
+      - .:/app
+    environment:
+      - NAME=World
+    command: python app.py
