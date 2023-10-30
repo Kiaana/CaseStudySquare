@@ -226,6 +226,11 @@ def upload_to_gitee(upload_path, filename, content, GITEE_REPO, GITEE_TOKEN):
 
     return jsonify({"message": "File uploaded and processed successfully"}), 200
 
+def push_to_github():
+    os.system("git add .")
+    os.system("git commit -m 'update'")
+    os.system("git push origin master")
+
 # 更新分数
 @app.route('/update_score', methods=['POST'])
 def update_score():
