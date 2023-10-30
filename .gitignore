@@ -1,0 +1,5 @@
+/venv
+/extracted_files
+/instance
+/uploads
+.DS_Store
