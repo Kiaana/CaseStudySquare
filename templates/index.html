@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>案例广场</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0 20px;
+            background-color: #f4f4f4;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        button {
+            cursor: pointer;
+            padding: 5px 10px;
+            margin: 0 5px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 3px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>案例广场</h1>
+
+    <table>
+        <thead>
+            <tr>
+                <th>学生姓名 <button onclick="sortTable('student_name')">排序</button></th>
+                <th>作业次数 <button onclick="sortTable('assignment_name')">排序</button></th>
+                <th>分数 <button onclick="sortTable('score')">排序</button></th>
+                <th>查看作业</th>
+            </tr>
+        </thead>
+        <tbody id="assignmentsTableBody">
+            <!-- 作业列表将在这里显示 -->
+        </tbody>
+    </table>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            // 跳转到Binder页面的函数
+            window.goToBinder = function (binderLink) {
+                if (!binderLink) {
+                    console.error('Binder link is undefined or empty');
+                    alert('无法打开Binder，链接为空');
+                    return;
+                }
+                const newWindow = window.open(binderLink, '_blank'); // 在新窗口中打开Binder页面
+                if (!newWindow) {
+                    alert('无法打开新窗口，请检查您的浏览器设置');
+                }
+            };
+
+            function fetchAndDisplayAssignments() {
+                fetch('/list_assignments')  //返回一个包含作业列表的对象
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.assignments) {
+                            window.assignments = data.assignments;
+                            displayAssignments(data.assignments);
+                        } else {
+                            alert('获取作业列表失败');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('获取作业列表失败:', error);
+                        alert('获取作业列表失败，请稍后再试！');
+                    });
+            }
+
+            function displayAssignments(assignments) {
+                const tableBody = document.getElementById('assignmentsTableBody');
+                tableBody.innerHTML = '';
+                for (const assignment of assignments) {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+            <td>${assignment.student_name}</td>
+            <td>第${assignment.assignment_name}次</td>
+            <td>${assignment.score !== null ? assignment.score : '未评分'}</td>
+            <td>
+                <button onclick="goToBinder('${assignment.binder_link}')">查看作业</button>
+            </td>
+        `;
+                    tableBody.appendChild(row);
+                }
+            }
+
+            fetchAndDisplayAssignments();
+
+            let sortState = {
+                column: null,
+                direction: 'asc'
+            };
+            // 排序函数
+            window.sortTable = function (column) {  // 将函数添加到 window 对象上
+                const assignments = window.assignments || [];
+                const direction = sortState.column === column && sortState.direction === 'asc' ? 'desc' : 'asc';
+                const sortedAssignments = assignments.sort((a, b) => {
+                    const aValue = a[column];
+                    const bValue = b[column];
+                    if (direction === 'asc') {
+                        return aValue > bValue ? 1 : (aValue < bValue ? -1 : 0);
+                    } else {
+                        return aValue < bValue ? 1 : (aValue > bValue ? -1 : 0);
+                    }
+                });
+                sortState = { column, direction };
+                displayAssignments(sortedAssignments);  // 确保你有一个函数来显示排序后的作业列表
+            }
+        });
+    </script>
+</body>
+
+</html>
