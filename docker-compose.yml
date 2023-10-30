@@ -4,4 +4,9 @@ services:
   web:
     build: .
     ports:
-      - "1753:80"
+      - "1753:1753"
+    volumes:
+      - .:/app
+    environment:
+      - NAME=World
+    command: python app.py
