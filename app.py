@@ -4,6 +4,7 @@ import requests
 import base64
 from flask import Flask, request, jsonify, render_template, stream_with_context, current_app
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 import time
 import urllib.parse
 # import concurrent.futures
@@ -23,6 +24,7 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///students.db'
 
 db = SQLAlchemy(app)
+migrate = Migrate(app, db)
 
 # 数据库模型
 class Assignment(db.Model):
