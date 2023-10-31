@@ -49,7 +49,7 @@
 
 [Simplified Chinese](README.md) | English
 
-## Introduction
+## 👋🏻 Introduction
 
 **Physics Computational Methods Case Study Square** is an online platform designed for educational and learning scenarios, focusing on displaying and running Jupyter Notebook files. We provide a convenient environment where teachers and students can upload their Jupyter Notebook assignments, categorize them, and make them easily accessible for others to browse and run.
 
