@@ -47,7 +47,7 @@
 
 # Physics Computational Methods Case Study Square
 
-Simplified Chinese | [English](README-en.md)
+[Simplified Chinese](README.md) | English
 
 ## Introduction
 
@@ -68,10 +68,10 @@ Simplified Chinese | [English](README-en.md)
 
 ## 🛠 Technical Details
 
-- **Frontend**: We have constructed an intuitive user interface using HTML and Bootstrap.
+- **Frontend**: We have constructed an intuitive user interface using HTML, CSS, Javascript and Bootstrap.
 - **Backend**: We handle user requests and manage data using the Flask framework.
 - **Database**: We use SQLite to store metadata of the assignments.
-- **Storage**: Assignment files are stored in the file system of the server.
+- **Storage**: The server automatically pushes files to the GitHub or Gitee repository for storage.
 - **Running Environment**: We provide an online running environment for Jupyter Notebooks using MyBinder.
 
 ## 🚀 Deployment Guide
@@ -79,8 +79,10 @@ Simplified Chinese | [English](README-en.md)
 This project uses Docker for deployment. Please ensure that your server has Docker and Docker Compose installed.
 
 1. Clone the repository to your server.
-2. Run `docker-compose up --build` in the root directory of the project.
-3. Visit `http://your-server-ip:1753`.
+2. Modify the `app.py` file in the root directory, change the values of `GITHUB_TOKEN` and `GITEE_TOKEN` to the Token of your GitHub or Gitee repository, and change the values of `GITHUB_REPO` and `GITEE_REPO` to the address of your GitHub or Gitee repository.
+3. Set the value of `GITHUB_OR_GITEE` to `github` or `gitee`, to specify using GitHub or Gitee as the repository. Gitee is recommended for use within China, as the transmission is more stable, avoiding the server's inability to connect to GitHub.
+4. Run `docker-compose up --build` in the root directory of the project.
+5. Visit `http://your-server-ip:1753`.
 
 ## 🤝 Contribution Guide
 

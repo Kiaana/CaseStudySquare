@@ -8,7 +8,7 @@
 
 **物理计算方法案例广场** 是一个为教育和学习场景设计的在线平台，专注于展示和运行 Jupyter Notebook 文件。
 
-[简体中文](README.md) | English
+简体中文 | [English](README-en.md)
 
 <!-- SHIELD GROUP -->
 
@@ -68,10 +68,10 @@
 
 ## 🛠 技术细节
 
-- **前端**: 我们使用 HTML 和 Bootstrap 构建了一个直观的用户界面。
+- **前端**: 我们使用 HTML、CSS、Javascript 和 Bootstrap 构建了一个直观的用户界面。
 - **后端**: 我们使用 Flask 框架来处理用户请求并管理数据。
 - **数据库**: 我们使用 SQLite 来存储作业的元数据。
-- **存储**: 作业文件存储在服务器的文件系统中。
+- **存储**: 服务器自动将文件推送到GitHub或Gitee仓库进行存储。
 - **运行环境**: 我们使用 MyBinder 提供 Jupyter Notebook 的在线运行环境。
 
 ## 🚀 部署指南
@@ -79,8 +79,10 @@
 本项目使用 Docker 进行部署，请确保你的服务器已安装 Docker 和 Docker Compose。
 
 1. 将仓库克隆到你的服务器。
-2. 在项目根目录下运行 `docker-compose up --build`。
-3. 访问 `http://your-server-ip:1753`。
+2. 修改根目录下的`app.py`文件，将`GITHUB_TOKEN`和`GITEE_TOKEN`的值改为你的 GitHub 或 Gitee 仓库的 Token，并将`GITHUB_REPO`和`GITEE_REPO`的值改为你的 GitHub 或 Gitee 仓库的地址。
+3. 设置`GITHUB_OR_GITEE`的值为`github`或`gitee`，以指定使用 GitHub 还是 Gitee 作为仓库。国内推荐使用 Gitee，传输比较稳定，避免服务器无法连接 GitHub。
+4. 在项目根目录下运行 `docker-compose up --build`。
+5. 访问 `http://your-server-ip:1753`。
 
 ## 🤝 贡献指南
 
