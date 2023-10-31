@@ -10,10 +10,10 @@ import urllib.parse
 # import concurrent.futures
 
 
-GITHUB_TOKEN = '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'
-GITHUB_REPO = 'Kiaana/CaseStudySquare'
-GITEE_TOKEN = 'd051e3ce8278b926b909543a6721d28d'
-GITEE_REPO = 'kiaana/case-square'
+GITHUB_TOKEN = 'YOUR_GITHUB_TOKEN'
+GITHUB_REPO = 'OWNER/REPO'
+GITEE_TOKEN = 'YOUR_GITEE_TOKEN'
+GITEE_REPO = 'OWNER/REPO'
 BINDER_URL_GITHUB = "https://mybinder.org/v2/gh/{repo}/HEAD?filepath={path}"
 # BINDER_URL_GITEE = "https://mybinder.org/v2/git/{urllib.parse.quote('https://gitee.com/' + repo, safe='')}/HEAD?labpath={urllib.parse.quote(path)}"
 GITHUB_OR_GITEE = 'gitee'
