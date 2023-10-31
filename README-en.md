@@ -2,7 +2,7 @@
 
 <div align="center">
 
-<img height="120" src="./img/logo.webp">
+<img height="120" src="./logo.webp">
 
 <h1>Physics Computational Methods Case Study Square</h1>
 

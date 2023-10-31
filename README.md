@@ -2,7 +2,7 @@
 
 <div align="center">
 
-<img height="120" src="./img/logo.webp">
+<img height="120" src="./logo.webp">
 
 <h1>物理计算方法案例广场</h1>
 

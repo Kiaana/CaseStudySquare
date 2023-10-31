@@ -10,10 +10,10 @@ import urllib.parse
 # import concurrent.futures
 
 
-GITHUB_TOKEN = 'YOUR_GITHUB_TOKEN'
-GITHUB_REPO = 'OWNER/REPO'
-GITEE_TOKEN = 'YOUR_GITEE_TOKEN'
-GITEE_REPO = 'OWNER/REPO'
+GITHUB_TOKEN = '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'
+GITHUB_REPO = 'Kiaana/CaseStudySquare'
+GITEE_TOKEN = 'd051e3ce8278b926b909543a6721d28d'
+GITEE_REPO = 'kiaana/case-square'
 BINDER_URL_GITHUB = "https://mybinder.org/v2/gh/{repo}/HEAD?filepath={path}"
 # BINDER_URL_GITEE = "https://mybinder.org/v2/git/{urllib.parse.quote('https://gitee.com/' + repo, safe='')}/HEAD?labpath={urllib.parse.quote(path)}"
 GITHUB_OR_GITEE = 'gitee'
@@ -251,15 +251,18 @@ def list_assignments():
     assignment_list = []
     for a in assignments:
         if GITHUB_OR_GITEE == 'github':
+            repo_link = f'https://github.com/{GITHUB_REPO}/tree/main/{a.folder_path}'
             binder_link = BINDER_URL_GITHUB.format(repo=GITHUB_REPO, path=f"{a.folder_path}/")
         elif GITHUB_OR_GITEE == 'gitee':
+            repo_link = f'https://gitee.com/{GITEE_REPO}/tree/main/{a.folder_path}'
             repo_url = urllib.parse.quote(f'https://gitee.com/{GITEE_REPO}', safe='')
             binder_link = f"https://mybinder.org/v2/git/{repo_url}/HEAD?labpath={a.folder_path}"
         assignment_list.append({
             "student_name": a.student_name,
             "assignment_number": a.assignment_number,
             "score": a.score,
-            "binder_link": binder_link
+            "binder_link": binder_link,
+            "repo_link": repo_link
         })
     
     return jsonify({"assignments": assignment_list}), 200
@@ -376,4 +379,4 @@ def clear_db():
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-    app.run(host='0.0.0.0', port=1753)
+    app.run(host='0.0.0.0', port=1753, debug=True)
