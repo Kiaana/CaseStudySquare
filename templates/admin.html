@@ -186,6 +186,7 @@
         function createAssignmentRow(assignment) {
             const row = document.createElement('tr');
             row.dataset.binderLink = assignment.binder_link; // 存储 Binder 链接作为行的数据属性
+            row.dataset.repoLink = assignment.repo_link; // 存储 GitHub 仓库链接作为行的数据属性
 
             const studentNameCell = document.createElement('td');
             studentNameCell.textContent = assignment.student_name;
@@ -217,6 +218,12 @@
             deleteButton.className = 'btn btn-danger btn-sm';
             deleteButton.textContent = '删除作业';
             actionsCell.appendChild(deleteButton);
+
+            const repoButton = document.createElement('button');
+            repoButton.type = 'button';
+            repoButton.className = 'btn btn-info btn-sm';
+            repoButton.textContent = '查看仓库';
+            actionsCell.appendChild(repoButton);
 
             row.appendChild(actionsCell);
 
@@ -356,6 +363,12 @@
                     alert('文件上传成功');
                     fetchAndDisplayAssignments(); // 重新加载作业列表
                     endGithubSync(); // 隐藏进度条和状态信息
+                    form.reset(); // 清空表单
+                    document.getElementById('uploadContainer').style.display = 'none'; // 隐藏上传进度条
+                    document.getElementById('githubContainer').style.display = 'none'; // 隐藏GitHub同步进度条
+                    progressBar.value = 0;  // 重置进度条
+                    document.getElementById('github-progress').value = 0; // 重置GitHub进度条
+                    fileChosen.textContent = '未选择文件'; // 重置文件选择状态
                 } else {
                     alert('文件上传失败: ' + xhr.responseText);
                 }
@@ -423,13 +436,17 @@
                 const binderLink = row.dataset.binderLink;
                 const studentName = row.cells[0].textContent;
                 const assignmentNumber = row.cells[1].textContent.match(/\d+/)[0];
+                const repoLink = row.dataset.repoLink;
                 if (target.textContent === '查看作业') {
                     goToBinder(binderLink);
                 } else if (target.textContent === '修改分数') {
                     updateScore(studentName, assignmentNumber);
                 } else if (target.textContent === '删除作业') {
                     deleteAssignment(studentName, assignmentNumber);
+                } else if (target.textContent === '查看仓库') {
+                    window.open(repoLink, '_blank');
                 }
+
             }
         });
     });

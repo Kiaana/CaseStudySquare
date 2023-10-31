@@ -35,6 +35,10 @@
     .sort-icon {
         cursor: pointer;
     }
+
+    #assignments-table-body button {
+        margin-right: 5px;
+    }
 </style>
 {% endblock %}
 
@@ -77,6 +81,7 @@
         function createAssignmentRow(assignment) {
             const row = document.createElement('tr');
             row.dataset.binderLink = assignment.binder_link; // 存储 Binder 链接作为行的数据属性
+            row.dataset.repoLink = assignment.repo_link; // 存储 GitHub 仓库链接作为行的数据属性
 
             const studentNameCell = document.createElement('td');
             studentNameCell.textContent = assignment.student_name;
@@ -97,6 +102,12 @@
             viewButton.textContent = '查看作业';
             actionsCell.appendChild(viewButton);
 
+            const repoButton = document.createElement('button');
+            repoButton.type = 'button';
+            repoButton.className = 'btn btn-info btn-sm';
+            repoButton.textContent = '查看仓库';
+            actionsCell.appendChild(repoButton);
+            
             row.appendChild(actionsCell);
 
             return row;
@@ -161,8 +172,11 @@
             if (target.tagName === 'BUTTON') {
                 const row = target.closest('tr');
                 const binderLink = row.dataset.binderLink;
+                const repoLink = row.dataset.repoLink;
                 if (target.textContent === '查看作业') {
                     goToBinder(binderLink);
+                } else if (target.textContent === '查看仓库') {
+                    window.open(repoLink, '_blank');
                 }
             }
         });
