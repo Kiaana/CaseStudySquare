@@ -14,7 +14,7 @@ GITHUB_REPO = 'OWNER/REPO'
 GITEE_TOKEN = 'YOUR_GITEE_TOKEN'
 GITEE_REPO = 'OWNER/REPO'
 BINDER_URL_GITHUB = "https://mybinder.org/v2/gh/{repo}/HEAD?filepath={path}"
-BINDER_URL_GITEE = "https://mybinder.org/v2/git/{urllib.parse.quote('https://gitee.com/' + repo, safe='')}/HEAD?labpath={urllib.parse.quote(path)}"
+# BINDER_URL_GITEE = "https://mybinder.org/v2/git/{urllib.parse.quote('https://gitee.com/' + repo, safe='')}/HEAD?labpath={urllib.parse.quote(path)}"
 GITHUB_OR_GITEE = 'gitee'
 
 
@@ -28,7 +28,7 @@ db = SQLAlchemy(app)
 class Assignment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     student_name = db.Column(db.String(50), nullable=False)
-    assignment_name = db.Column(db.String(50), nullable=False)
+    assignment_number = db.Column(db.String(50), nullable=False)
     score = db.Column(db.Integer, nullable=True)
     folder_path = db.Column(db.String(255), nullable=True)
 
@@ -37,7 +37,7 @@ def index():
     return render_template('admin.html')
 
 # 上传 ZIP 文件
-@app.route('/upload_zip', methods=['POST'])
+@app.route('/upload_assignment', methods=['POST'])
 def upload_zip():
     # 获取学生名字和作业次数
     student_name = request.form.get('student_name')
@@ -124,11 +124,11 @@ def upload_zip():
             return jsonify({"error": "Error uploading or updating file on GitHub"}), 500
                 
     # 存储信息到数据库
-    assignment = Assignment.query.filter_by(student_name=student_name, assignment_name=assignment_number).first()
+    assignment = Assignment.query.filter_by(student_name=student_name, assignment_number=assignment_number).first()
     if assignment:
         assignment.folder_path = folder_path
     else:
-        new_assignment = Assignment(student_name=student_name, assignment_name=assignment_number, folder_path=folder_path)
+        new_assignment = Assignment(student_name=student_name, assignment_number=assignment_number, folder_path=folder_path)
         db.session.add(new_assignment)
     db.session.commit()
     
@@ -188,38 +188,41 @@ def upload_to_github(upload_path, filename, content, GITHUB_REPO, GITHUB_TOKEN):
 
 # 将文件上传到 Gitee
 def upload_to_gitee(upload_path, filename, content, GITEE_REPO, GITEE_TOKEN):
-    url = f"http://gitee.com/api/v5/repos/{GITEE_REPO}/contents/{upload_path}"
+    url = f"https://gitee.com/api/v5/repos/{GITEE_REPO}/contents/{upload_path}"
+    headers = {
+        'access_token': GITEE_TOKEN
+    }
 
     # 发送 GET 请求检查文件是否存在
-    response = requests.get(url)
-    print(response.status_code)
+    response = requests.get(url, params=headers)
     if response.status_code == 200:
-        print(url, GITEE_TOKEN)
-        # 文件存在，获取文件的 sha 值
         file_data = response.json()
-        sha = file_data.get('sha')
-        # 更新文件
-        data = {
-                'access_token': f'{GITEE_TOKEN}',
+        # 检查响应体是否为空
+        if len(file_data) == 0:
+            # 文件不存在，创建文件
+            data = {
+                'access_token': GITEE_TOKEN,
+                "message": f"Add {filename}",
+                "content": base64.b64encode(content).decode('utf-8')  # 将内容转换为Base64编码的字符串
+            }
+            response = requests.post(url, json=data)
+            if response.status_code not in [200, 201]:
+                return jsonify({"error": "Error creating file on Gitee"}), 500
+        else:
+            # 文件存在，更新文件
+            sha = file_data.get('sha')
+            data = {
+                'access_token': GITEE_TOKEN,
                 "message": f"Update {filename}",
                 "content": base64.b64encode(content).decode('utf-8'),  # 将内容转换为Base64编码的字符串
                 "sha": sha
-        }
-        response = requests.put(url, json=data)
-        if response.status_code  not in [200, 201]:
+            }
+            response = requests.put(url, json=data)
+            if response.status_code not in [200, 201]:
                 return jsonify({"error": "Error updating file on Gitee"}), 500
     else:
-        # 文件不存在，需要创建文件的数据
-        data = {
-            'access_token': f'{GITEE_TOKEN}',
-            "message": f"Add {filename}",
-            "content": base64.b64encode(content).decode('utf-8')  # 将内容转换为Base64编码的字符串
-        }
-        # 发送 Post 请求来创建文件
-        response = requests.post(url, json=data)
-        if response.status_code not in [200, 201]:
-            print(response.text)
-            return jsonify({"error": "Error creating file on Gitee"}), 500
+        # 处理其他错误
+        return jsonify({"error": "Error accessing Gitee API"}), 500
 
     return jsonify({"message": "File uploaded and processed successfully"}), 200
 
@@ -228,10 +231,10 @@ def upload_to_gitee(upload_path, filename, content, GITEE_REPO, GITEE_TOKEN):
 def update_score():
     data = request.json
     student_name = data.get('student_name')
-    assignment_name = data.get('assignment_name')
+    assignment_number = data.get('assignment_number')
     new_score = data.get('score')
     
-    assignment = Assignment.query.filter_by(student_name=student_name, assignment_name=assignment_name).first()
+    assignment = Assignment.query.filter_by(student_name=student_name, assignment_number=assignment_number).first()
     if assignment:
         assignment.score = new_score
         db.session.commit()
@@ -248,11 +251,11 @@ def list_assignments():
         if GITHUB_OR_GITEE == 'github':
             binder_link = BINDER_URL_GITHUB.format(repo=GITHUB_REPO, path=f"{a.folder_path}/")
         elif GITHUB_OR_GITEE == 'gitee':
-            repo_url = urllib.parse.quote(f'https://gitee.com/{GITHUB_REPO}', safe='')
+            repo_url = urllib.parse.quote(f'https://gitee.com/{GITEE_REPO}', safe='')
             binder_link = f"https://mybinder.org/v2/git/{repo_url}/HEAD?labpath={a.folder_path}"
         assignment_list.append({
             "student_name": a.student_name,
-            "assignment_name": a.assignment_name,
+            "assignment_number": a.assignment_number,
             "score": a.score,
             "binder_link": binder_link
         })
@@ -263,10 +266,10 @@ def list_assignments():
 @app.route('/delete_assignment', methods=['DELETE'])
 def delete_assignment():
     student_name = request.args.get('student_name')
-    assignment_name = request.args.get('assignment_name')
+    assignment_number = request.args.get('assignment_number')
 
     # 从数据库中删除记录
-    assignment = Assignment.query.filter_by(student_name=student_name, assignment_name=assignment_name).first()
+    assignment = Assignment.query.filter_by(student_name=student_name, assignment_number=assignment_number).first()
     if assignment:
         db.session.delete(assignment)
         db.session.commit()
@@ -274,7 +277,7 @@ def delete_assignment():
         return jsonify({"success": False, "error": "作业在数据库中未找到"})
 
     # 从GitHub删除文件夹
-    folder_path = os.path.join(assignment_name, student_name)
+    folder_path = os.path.join(assignment_number, student_name)
     if GITHUB_OR_GITEE == 'github':
         if not delete_folder_from_github(folder_path):
             return jsonify({"success": False, "error": "从GitHub删除文件夹失败"})
@@ -324,7 +327,7 @@ def delete_folder_from_github(folder_path):
 
 # 从Gitee删除文件夹
 def delete_folder_from_gitee(folder_path):
-    url = f"http://gitee.com/api/v5/repos/{GITEE_REPO}/contents/{folder_path}"
+    url = f"https://gitee.com/api/v5/repos/{GITEE_REPO}/contents/{folder_path}"
     
     # 获取文件夹中所有文件的信息
     response = requests.get(url, data={'access_token': f'{GITEE_TOKEN}'})
@@ -356,7 +359,6 @@ def delete_folder_from_gitee(folder_path):
     response = requests.delete(url, json=data)
     return True
     
-
 # 作业列表页面
 @app.route('/')
 def homework_list():
