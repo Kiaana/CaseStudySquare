@@ -77,6 +77,18 @@
             }
         }
 
+        function goToRepo(repoLink) {
+            if (!repoLink) {
+                console.error('GitHub 仓库链接未定义或为空');
+                alert('无法打开GitHub仓库，链接为空');
+                return;
+            }
+            const newWindow = window.open(repoLink, '_blank'); // 在新窗口中打开 Binder 页面
+            if (!newWindow) {
+                alert('无法打开新窗口，请检查您的浏览器设置');
+            }
+        }
+
         // 创建表格行的函数
         function createAssignmentRow(assignment) {
             const row = document.createElement('tr');
@@ -176,7 +188,7 @@
                 if (target.textContent === '查看作业') {
                     goToBinder(binderLink);
                 } else if (target.textContent === '查看仓库') {
-                    window.open(repoLink, '_blank');
+                    goToRepo(repoLink);
                 }
             }
         });
